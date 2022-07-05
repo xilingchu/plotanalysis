@@ -1,4 +1,5 @@
 import h5py
+import re
 from pathlib import Path
 from point import point
 from node import node
@@ -8,9 +9,29 @@ class cgnsSection(object):
     Section in the CGNS file
     '''
     def __init__(self, h5file:h5py.File, section, attrs):
-        self.section = h5file['Base/'+section]
+        # Judge the section name of the HDF file
+        sec_re     = re.compile(section) 
+        sec_name   = None
+        for ikey in h5file['Base'].keys():
+            temp_re = sec_re.search(ikey)
+            if temp_re is not None:
+                sec_name = ikey
+                break
+        if sec_name is None:
+            raise Exception('The section %s is not exist in the CGNS file.'%section)
+        self.section = h5file['Base/'+sec_name]
         self.attrs   = attrs
-        self.sname   = section
+        self.sname   = sec_name
+        # Judge the name of the solution
+        solu_re       = re.compile(r'Solution\d+')
+        self.soluName = None
+        for ikey in self.section.keys():
+            temp_re = solu_re.search(ikey)
+            if temp_re is not None:
+                self.soluName = temp_re.group(0)
+                break
+        if self.soluName is None:
+            raise Exception('The solution is not exist in the CGNS file.')
 
     def pList(self):
         if hasattr(self, '_pList'):
@@ -37,9 +58,8 @@ class cgnsSection(object):
         conn = list(conn)
         vardict = {}
         self._nList = []
-        print(self.attrs)
         for i in range(len(self.attrs)):
-            vardict[self.attrs[i]] = self.section['Solution1/'+self.attrs[i]+'/ data'][:]
+            vardict[self.attrs[i]] = self.section[self.soluName+'/'+self.attrs[i]+'/ data'][:]
 
         for i in range(len(vardict[self.attrs[0]])):
             point_num  = conn.pop(0)
