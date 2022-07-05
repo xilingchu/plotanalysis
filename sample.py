@@ -1,8 +1,9 @@
 from cgnsreader import cgnsRead
 
 # A sample to get the 
-fn = './ttp.cgns'
-a = cgnsRead(fn, HEAD=['Pressure'], TAIL=['Pressure'])
+fn = '~/data_gt/CRHmodel-10.02.012@03000.cgns'
+a = cgnsRead(fn, HEAD=['Pressure', 'SkinFrictionX', 'SkinFrictionY', 'SkinFrictionZ'],
+                 TAIL=['Pressure', 'SkinFrictionX', 'SkinFrictionY', 'SkinFrictionZ'])
 nList_head = a.HEAD.nList()
 nList_tail = a.TAIL.nList()
 # Calculate the pressure
