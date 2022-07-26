@@ -49,11 +49,11 @@ class node(object):
                 return True
         return False
 
-    def value(self, val, proj=None):
-        try:
+    def value(self, val=None, proj=None):
+        if val is not None:
             val = getattr(self, val)
-        except:
-            print('The node didn\'t have this value!')
+        else:
+            val = 1
 
         # Judge if has already calculate it.
         if proj is not None:
