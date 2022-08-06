@@ -78,6 +78,20 @@ class cgnsSection(object):
 
         return self._nList
 
+    def cal(self, *var, lb=None, rb=None, proj=None):
+        if not hasattr(self, '_nList'):
+            return getattr(self, '_nList')
+        val = 0
+        for inode in self._nList:
+            if len(var) == 1:
+                val += inode.value('Pressure', proj=proj)
+            else:
+                val += math.sqrt((inode.value('SkinFrictionX') ** 2 + inode.value('SkinFrictionY') ** 2 +
+                                 inode.value('SkinFrictionZ') ** 2))
+        print(val)
+
+
+
 
 class cgnsRead(object):
     """
@@ -105,88 +119,8 @@ class cgnsRead(object):
         return cgnsSection(self.file, secname, getattr(self, secname+'_value'))
 
 
-class Cal(object):
-
-    def preHead(self, fn, box_l, box_u,):
-        aa = cgnsRead(fn, **{'HEAD': ['Pressure']})
-        nList_head = aa.HEAD.nList()
-        pre_h = 0
-        pre_h_all = 0
-        for inode in nList_head:
-            pre_h_all += inode.value('Pressure', proj='x')
-            if inode > box_l and inode < box_u:
-                pre_h += inode.value('Pressure', proj='x')
-        print('pre_h=', pre_h)
-        print('pre_h_all=', pre_h_all)
-
-    def preTail(self, fn, box_l, box_u,):
-        aa = cgnsRead(fn, **{'TAIL': ['Pressure']})
-        nList_tail = aa.TAIL.nList()
-        pre_t = 0
-        pre_t_all = 0
-        for inode in nList_tail:
-            pre_t_all -= inode.value('Pressure', proj='x')
-            if inode > box_l and inode < box_u:
-                pre_t -= inode.value('Pressure', proj='x')
-        print('pre_t=', pre_t)
-        print('pre_t_all=', pre_t_all)
-
-    def skinHead(self, fn, box_l, box_u,):
-        aa = cgnsRead(fn, **{'HEAD': ['SkinFrictionX', 'SkinFrictionY', 'SkinFrictionZ']})
-        nList_head = aa.HEAD.nList()
-        skin_h = 0
-        skin_h_all = 0
-        for inode in nList_head:
-            skin_h_all += math.sqrt((inode.value('SkinFrictionX')) ** 2 + (inode.value('SkinFrictionY')) ** 2
-                                    + (inode.value('SkinFrictionZ')) ** 2)
-            if inode > box_l and inode < box_u:
-                skin_h += math.sqrt(inode.value('SkinFrictionX') ** 2 + inode.value('SkinFrictionY') ** 2
-                                    + inode.value('SkinFrictionZ') ** 2)
-        print('skin_h=', skin_h)
-        print('skin_h_all=', skin_h_all)
-
-    def skinMiddle(self, fn, box1_l, box1_u, box2_l, box2_u, box3_l, box3_u,):
-        aa = cgnsRead(fn, **{'MIDDLE': ['SkinFrictionX', 'SkinFrictionY', 'SkinFrictionZ']})
-        nList_middle = aa.MIDDLE.nList()
-        skin1_m = 0
-        skin2_m = 0
-        skin3_m = 0
-        skin_m_all = 0
-        for inode in nList_middle:
-            skin_m_all += math.sqrt((inode.value('SkinFrictionX')) ** 2 + (inode.value('SkinFrictionY')) ** 2
-                                    + (inode.value('SkinFrictionZ')) ** 2)
-            if inode > box1_l and inode < box1_u:
-                skin1_m += math.sqrt(inode.value('SkinFrictionX') ** 2 + inode.value('SkinFrictionY') ** 2
-                                     + inode.value('SkinFrictionZ') ** 2)
-            if inode > box2_l and inode < box2_u:
-                skin2_m += math.sqrt(inode.value('SkinFrictionX') ** 2 + inode.value('SkinFrictionY') ** 2
-                                     + inode.value('SkinFrictionZ') ** 2)
-            if inode > box3_l and inode < box3_u:
-                skin3_m += math.sqrt(inode.value('SkinFrictionX') ** 2 + inode.value('SkinFrictionY') ** 2
-                                     + inode.value('SkinFrictionZ') ** 2)
-        print('skin1_m=', skin1_m)
-        print('skin2_m=', skin2_m)
-        print('skin3_m=', skin3_m)
-        print('skin_m_all=', skin_m_all)
-
-    def skinTail(self, fn, box_l, box_u,):
-        aa = cgnsRead(fn, **{'TAIL': ['SkinFrictionX', 'SkinFrictionY', 'SkinFrictionZ']})
-        nList_tail = aa.TAIL.nList()
-        skin_t = 0
-        skin_t_all = 0
-        for inode in nList_tail:
-            skin_t_all += math.sqrt((inode.value('SkinFrictionX')) ** 2 + (inode.value('SkinFrictionY')) ** 2
-                                    + (inode.value('SkinFrictionZ')) ** 2)
-            if inode > box_l and inode < box_u:
-                skin_t += math.sqrt(inode.value('SkinFrictionX') ** 2 + inode.value('SkinFrictionY') ** 2
-                                    + inode.value('SkinFrictionZ') ** 2)
-        print('skin_t=', skin_t)
-        print('skin_t_all=', skin_t_all)
-
-
 if __name__ == '__main__':
     path = '~/tt/ttp.cgns'
     a = cgnsRead(path, **{'HEAD': ['Pressure']})
     p = a.HEAD.nList()
     print(p)
-
