@@ -21,27 +21,27 @@ class node(object):
 
     # Gt means the whole grid in the selected region.
     def __gt__(self, other):
+        if other == None:
+            return True
         if len(other) != 3:
             raise Exception('The length of the dimension must be 3.')
-        if len(other) == None:
-            return True
         return (self.lbound[0] >= other[0] and self.lbound[1] >= other[1] and self.lbound[2] >= other[2])
 
     # Lt means the whole grid in the selected region.
     def __lt__(self, other):
+        if other == None:
+            return True
         if len(other) != 3:
             raise Exception('The length of the dimension must be 3.')
-        if len(other) == None:
-            return True
         return (self.rbound[0] <= other[0] and self.rbound[1] <= other[1] and self.rbound[2] <= other[2])
 
 
     # Ge means at least a part of the grid in the selected region.
     def __ge__(self, other):
+        if other == None:
+            return True
         if len(other) != 3:
             raise Exception('The length of the dimension must be 3.')
-        if len(other) == None:
-            return True
         for point in self.points:
             if point[0] >= other[0] and point[1] >= other[1] and point[2] >= other[2]:
                 return True
@@ -49,10 +49,10 @@ class node(object):
 
     # Le means at least a part of the grid in the selected region.
     def __le__(self, other):
+        if other == None:
+            return True
         if len(other) != 3:
             raise Exception('The length of the dimension must be 3.')
-        if len(other) == None:
-            return True
         for point in self.points:
             if point[0] <= other[0] and point[1] <= other[1] and point[2] <= other[2]:
                 return True
