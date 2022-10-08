@@ -92,7 +92,22 @@ class cgnsSection(object):
                     for ivar in var:
                             sval += inode.value(ivar, proj=proj) ** 2
                     val += math.sqrt(sval)
-        print(val)
+        return val
+
+    def cale(self, *var, lb=None, rb=None, proj=None):
+        if not hasattr(self, '_nList'):
+            self.nList()
+        val = 0
+        for inode in self._nList:
+            if len(var) == 1:
+                if inode >= lb and inode <= rb:
+                    val += inode.value(var[0], proj=proj)
+            else:
+                sval = 0
+                if inode >= lb and inode <= rb:
+                    for ivar in var:
+                            sval += inode.value(ivar, proj=proj) ** 2
+                    val += math.sqrt(sval)
         return val
 
 class cgnsRead(object):
