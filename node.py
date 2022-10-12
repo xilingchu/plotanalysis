@@ -66,62 +66,68 @@ class node(object):
 
         # Judge if has already calculate it.
         if proj is not None:
-            if hasattr(self, 'area'+proj):
-                return getattr(self, 'area'+proj)*val
+            if hasattr(self, 'cosn'+proj):
+                return getattr(self, 'area')*getattr(self, 'cosn'+proj)*val
         else:
             if hasattr(self, 'area'):
                 return getattr(self, 'area')*val
 
+        # if proj is not None:
+        #     proj_column = self.dire[proj]
+        #     proj_points = np.delete(self.points, proj_column, 1) 
+        #     # 2-D Area in Projection
+        #     area = 0
+        #     for i in range(self.np):
+        #         i1   = i + 1 - self.np*int(i/(self.np-1))
+        #         area += proj_points[i, 0] * proj_points[i1, 1] - proj_points[i1, 0] * proj_points[i, 1]
+        #     area = abs(area)/2
+        #     setattr(self, 'area'+proj, area)
+        # else:
+        points = self.points
+        # 3-D Area
+        a = (pow(((points[1, 1] - points[0, 1])
+            *(points[-1, 2] - points[0, 2])
+            -(points[-1, 1] - points[0, 1])
+            *(points[1, 2] - points[0, 2])),2)
+            +pow(((points[-1, 0] - points[0, 0])
+            *(points[1, 2] - points[0, 2])
+            -(points[1, 0] - points[0, 0])
+            *(points[-1, 2] - points[0, 2])),2)
+            +pow(((points[1, 0] - points[0, 0])
+            *(points[-1, 1] - points[0, 1])
+            -(points[-1, 0] - points[0, 0])
+            *(points[1, 1] - points[0, 1])),2))
+        # Use the first 3 point to determine the plane
+        self.cosnx = (((points[1, 1] - points[0, 1])
+                     *(points[-1, 2] - points[0, 2])
+                     -(points[-1, 1] - points[0, 1])
+                     *(points[1, 2] - points[0, 2]))
+                     /pow(a, 1/2))
+        self.cosny = (((points[-1, 0] - points[0, 0])
+                     *(points[1, 2] - points[0, 2])
+                     -(points[1, 0] - points[0, 0])
+                     *(points[-1, 2] - points[0, 2]))
+                     /pow(a, 1/2))
+        self.cosnz = (((points[1, 0] - points[0, 0])
+                     *(points[-1, 1] - points[0, 1])
+                     -(points[-1, 0] - points[0, 0])
+                     *(points[1, 1] - points[0, 1]))
+                     /pow(a, 1/2))
+        area  = 0
+        for i in range(self.np):
+            i1   = i + 1 - self.np*int(i/(self.np-1))
+            area += (self.cosnz*(points[i, 0] * points[i1, 1] - points[i1, 0] * points[i, 1])
+                    +self.cosnx*(points[i, 1] * points[i1, 2] - points[i1, 1] * points[i, 2])
+                    +self.cosny*(points[i, 2] * points[i1, 0] - points[i1, 2] * points[i, 0]))
+        area = abs(area)/2
         if proj is not None:
-            proj_column = self.dire[proj]
-            proj_points = np.delete(self.points, proj_column, 1) 
-            # 2-D Area in Projection
-            area = 0
-            for i in range(self.np):
-                i1   = i + 1 - self.np*int(i/(self.np-1))
-                area += proj_points[i, 0] * proj_points[i1, 1] - proj_points[i1, 0] * proj_points[i, 1]
-            area = abs(area)/2
-            setattr(self, 'area'+proj, area)
-        else:
-            points = self.points
-            # 3-D Area
-            a = (pow(((points[1, 1] - points[0, 1])
-                *(points[-1, 2] - points[0, 2])
-                -(points[-1, 1] - points[0, 1])
-                *(points[1, 2] - points[0, 2])),2)
-                +pow(((points[-1, 0] - points[0, 0])
-                *(points[1, 2] - points[0, 2])
-                -(points[1, 0] - points[0, 0])
-                *(points[-1, 2] - points[0, 2])),2)
-                +pow(((points[1, 0] - points[0, 0])
-                *(points[-1, 1] - points[0, 1])
-                -(points[-1, 0] - points[0, 0])
-                *(points[1, 1] - points[0, 1])),2))
-            # Use the first 3 point to determine the plane
-            cosnx = (((points[1, 1] - points[0, 1])
-                    *(points[-1, 2] - points[0, 2])
-                    -(points[-1, 1] - points[0, 1])
-                    *(points[1, 2] - points[0, 2]))
-                    /pow(a, 1/2))
-            cosny = (((points[-1, 0] - points[0, 0])
-                    *(points[1, 2] - points[0, 2])
-                    -(points[1, 0] - points[0, 0])
-                    *(points[-1, 2] - points[0, 2]))
-                    /pow(a, 1/2))
-            cosnz = (((points[1, 0] - points[0, 0])
-                    *(points[-1, 1] - points[0, 1])
-                    -(points[-1, 0] - points[0, 0])
-                    *(points[1, 1] - points[0, 1]))
-                    /pow(a, 1/2))
-            area  = 0
-            for i in range(self.np):
-                i1   = i + 1 - self.np*int(i/(self.np-1))
-                area += (cosnz*(points[i, 0] * points[i1, 1] - points[i1, 0] * points[i, 1])
-                        +cosnx*(points[i, 1] * points[i1, 2] - points[i1, 1] * points[i, 2])
-                        +cosny*(points[i, 2] * points[i1, 0] - points[i1, 2] * points[i, 0]))
-            area = abs(area)/2
+            cosproj = getattr(self, 'cosn'+proj)
             setattr(self, 'area', area)
-        return area*val
+            result = area*cosproj*val
+        else:
+            setattr(self, 'area', area)
+            result = area*val
+        return result
         
 if __name__ == '__main__':
     node_test = node(point(0, 0, 0), point(1, 0, 1), point(1, 1, 1), point(0, 1, 0), p=1)
